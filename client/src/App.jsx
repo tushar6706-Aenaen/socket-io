@@ -8,7 +8,7 @@ const App = () => {
   const [message, setMessage] = useState("");
   const [room, setRoom] = useState("");
   const [socketID, setSocketId] = useState("");
-
+  const [messages,setMessages] = useState([]);
   const socket = useMemo(() => io("http://localhost:3000"), []);
   useEffect(() => {
     socket.on("connect", () => {
@@ -21,6 +21,7 @@ const App = () => {
     })
     socket.on("recieve-message", (message) => {
       console.log(message);
+      setMessages((messages)=>[...messages,message])
     })
 
     return () => {
@@ -56,6 +57,13 @@ const App = () => {
           variant='outlined' />
         <Button variant='contained' color='primary' type='submit'> Send </Button>
       </form>
+      <div>
+        
+          {messages.map((message,index)=>(
+            <p key={index}>{message}</p>
+          ))}
+        
+      </div>
     </Container>
   )
 }
