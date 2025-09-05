@@ -5,10 +5,12 @@ import { useEffect } from 'react';
 import { io } from "socket.io-client"
 
 const App = () => {
+  const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [room, setRoom] = useState("");
   const [socketID, setSocketId] = useState("");
-  const [messages,setMessages] = useState([]);
+  const [roomName, setRoomName] = useState("");
+
   const socket = useMemo(() => io("http://localhost:3000"), []);
   useEffect(() => {
     socket.on("connect", () => {
@@ -21,7 +23,7 @@ const App = () => {
     })
     socket.on("recieve-message", (message) => {
       console.log(message);
-      setMessages((messages)=>[...messages,message])
+      setMessages((messages) => [...messages, message])
     })
 
     return () => {
@@ -31,8 +33,14 @@ const App = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit("message", {message,room});
+    socket.emit("message", { message, room });
     setMessage("");
+  }
+
+  const joinRoomHandler =(e)=>{
+    e.preventDefault();
+    socket.emit("join-room",roomName);
+    setRoomName("");
   }
   return (
     <Container maxWidth="sm">
@@ -42,6 +50,18 @@ const App = () => {
       <Typography variant='h6' component="div" gutterBottom>
         {socketID}
       </Typography>
+
+      <form onSubmit={joinRoomHandler} >
+        <TextField
+          value={roomName}
+          onChange={e =>
+            setRoomName(e.target.value)} id="outlined-basic"
+          label="Room name"
+          variant='outlined' />
+        <h5>join Room</h5>
+        <Button variant='contained' color='primary' type='submit'>Join</Button>
+
+      </form>
       <form onSubmit={handleSubmit}>
         <TextField
           value={message}
@@ -58,11 +78,11 @@ const App = () => {
         <Button variant='contained' color='primary' type='submit'> Send </Button>
       </form>
       <div>
-        
-          {messages.map((message,index)=>(
-            <p key={index}>{message}</p>
-          ))}
-        
+
+        {messages.map((message, index) => (
+          <p key={index}>{message}</p>
+        ))}
+
       </div>
     </Container>
   )

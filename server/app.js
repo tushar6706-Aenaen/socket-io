@@ -29,10 +29,14 @@ io.on("connection", (socket) => {
 
     // socket.emit("welcome", `welcome to the server : `)
     // socket.broadcast.emit("welcome",` : ${socket.id} joined the server`)
-    socket.on("message", ({room,message}) => {
-        console.log(room,message);
+    socket.on("message", ({ room, message }) => {
+        console.log(room, message);
         // socket.broadcast.emit("recieve-message", data)
         io.to(room).emit("recieve-message", message)
+    })
+    socket.on("join-room", (room) => {
+        socket.join(room);
+        console.log("user joined", room);
     })
     socket.on("disconnect", () => {
         console.log("User Disconnected ", socket.id)
