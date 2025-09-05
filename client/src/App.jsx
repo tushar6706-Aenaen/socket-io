@@ -11,7 +11,10 @@ const App = () => {
   const [socketID, setSocketId] = useState("");
   const [roomName, setRoomName] = useState("");
 
-  const socket = useMemo(() => io("http://localhost:3000"), []);
+  const socket = useMemo(() => io("http://localhost:3000",
+    {
+      withCredentials: true
+    }), []);
   useEffect(() => {
     socket.on("connect", () => {
       setSocketId(socket.id);
@@ -37,9 +40,9 @@ const App = () => {
     setMessage("");
   }
 
-  const joinRoomHandler =(e)=>{
+  const joinRoomHandler = (e) => {
     e.preventDefault();
-    socket.emit("join-room",roomName);
+    socket.emit("join-room", roomName);
     setRoomName("");
   }
   return (

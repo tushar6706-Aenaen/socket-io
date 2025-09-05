@@ -2,7 +2,11 @@ import express from "express"
 import { Server } from "socket.io";
 import { createServer } from "http"
 import cors from "cors"
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+
 const PORT = 3000
+const secretKeyJWT = "hrsfhfsafsdk";
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -23,7 +27,29 @@ app.get("/", (req, res) => {
     res.send("hello world!");
 })
 
+app.get("/login", (req, res) => {
+    const token = jwt.sign({ _id: "asdasfadsfasdfga" }, secretKeyJWT);
+    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "none" }).json({ message: "login success" })
 
+})
+
+
+const user = false
+
+io.use((socket, next) => {
+    cookieParser()(socket.request, socket.request.res, (err) => {
+        if (err) return next(err)
+
+        const token = socket.request.cookies.token;
+
+        if (!token) return next(new Error("auth error"));
+
+        const decoded = jwt.verify(token, secretKeyJWT);
+
+
+        next();
+    })
+})
 io.on("connection", (socket) => {
     console.log("User Connected", socket.id);
 
